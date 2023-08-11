@@ -4,6 +4,7 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHashtag } from "@fortawesome/free-solid-svg-icons";
+import { getAppProps } from "@/utils/getAppProps";
 
 export default function Post(props) {
   console.log("post props", props);
@@ -46,6 +47,8 @@ Post.getLayout = function getLayout(page, pageProps) {
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(context) {
+    const props = await getAppProps(context);
+
     const userSession = await getSession(context.req, context.res);
     const client = await clientPromise;
     const db = await client.db("ai-blog");
@@ -72,6 +75,7 @@ export const getServerSideProps = withPageAuthRequired({
         title: post.title,
         metaDescription: post.metaDescription,
         keywords: post.keywords,
+        ...props,
       },
     };
   },
