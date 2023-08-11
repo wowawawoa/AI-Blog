@@ -6,15 +6,11 @@ export default function TokenTopUp() {
   const handleClick = async () => {
     const response = await fetch("/api/addTokens", {
       method: "POST",
-      // headers: {
-      //   'Content-Type': 'application/json'
-      // },
-      // body: JSON.stringify({ amount: 10 })
     });
 
     const json = await response.json();
-
-    console.log("json", json);
+    console.log("result", json);
+    window.location.href = json.session.url;
   };
 
   return (
