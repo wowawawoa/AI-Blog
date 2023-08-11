@@ -51,6 +51,7 @@ const handler = async (req, res) => {
             upsert: true,
           }
         );
+        break;
       }
 
       default:
