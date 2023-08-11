@@ -52,6 +52,11 @@ export default withApiAuthRequired(async function handler(req, res) {
         The response should be formatted in SEO-friendly HTML, 
         limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol, and only return body.`,
       },
+      {
+        role: "assistant",
+        content:
+          "Generate the blog post content using the specified HTML tags.",
+      },
     ],
   });
 
@@ -78,7 +83,8 @@ export default withApiAuthRequired(async function handler(req, res) {
       },
       {
         role: "user",
-        content: "Generate appropriate title tag text for the above blog post.",
+        content:
+          "Generate appropriate plain text to be used as a title for the above blog post.",
       },
     ],
   });
@@ -139,10 +145,6 @@ export default withApiAuthRequired(async function handler(req, res) {
   });
 
   res.status(200).json({
-    post: {
-      postContent,
-      title,
-      metaDescription: metaDescription.content,
-    },
+    postId: post.insertedId,
   });
 });
