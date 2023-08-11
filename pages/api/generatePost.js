@@ -1,6 +1,20 @@
 import { Configuration, OpenAIApi } from "openai";
+import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
+import clientPromise from "@/lib/mongodb";
 
-export default async function handler(req, res) {
+export default withApiAuthRequired(async function handler(req, res) {
+  const { user } = await getSession(req, res);
+  const client = await clientPromise;
+  const db = await client.db("ai-blog");
+  const userProfile = await db.collection("users").findOne({
+    auth0Id: user.sub,
+  });
+
+  if (!userProfile?.availableToken) {
+    res.status(403);
+    return;
+  }
+
   const config = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -36,7 +50,7 @@ export default async function handler(req, res) {
         role: "user",
         content: `Write a long and detailed SEO-friendly blog post about ${topic}, that targets the following comma-separated keywords: ${keywords}. 
         The response should be formatted in SEO-friendly HTML, 
-        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol.`,
+        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol, and only return body.`,
       },
     ],
   });
@@ -56,7 +70,7 @@ export default async function handler(req, res) {
         role: "user",
         content: `Write a long and detailed SEO-friendly blog post about ${topic}, that targets the following comma-separated keywords: ${keywords}. 
         The response should be formatted in SEO-friendly HTML, 
-        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol.`,
+        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol, and only return body.`,
       },
       {
         role: "assistant",
@@ -83,7 +97,7 @@ export default async function handler(req, res) {
         role: "user",
         content: `Write a long and detailed SEO-friendly blog post about ${topic}, that targets the following comma-separated keywords: ${keywords}. 
         The response should be formatted in SEO-friendly HTML, 
-        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol.`,
+        limited to the following HTML tags: p, h1, h2, h3, h4, h5, h6, strong, i, ul, li, ol, and only return body.`,
       },
       {
         role: "assistant",
@@ -103,11 +117,32 @@ export default async function handler(req, res) {
   console.log("TITLE: ", title);
   console.log("META DESCRIPTION: ", metaDescription);
 
+  await db.collection("users").updateOne(
+    {
+      auth0Id: user.sub,
+    },
+    {
+      $inc: {
+        availableToken: -1,
+      },
+    }
+  );
+
+  const post = await db.collection("posts").insertOne({
+    postContent,
+    title,
+    metaDescription: metaDescription.content,
+    topic,
+    keywords,
+    userId: userProfile._id,
+    createdAt: new Date(),
+  });
+
   res.status(200).json({
     post: {
       postContent,
       title,
-      metaDescription,
+      metaDescription: metaDescription.content,
     },
   });
-}
+});
