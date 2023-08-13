@@ -129,10 +129,6 @@ export default withApiAuthRequired(async function handler(req, res) {
 
   const metaDescription = metaDescriptionResponse.data.choices[0]?.message;
 
-  console.log("POST CONTENT: ", postContent);
-  console.log("TITLE: ", title);
-  console.log("META DESCRIPTION: ", metaDescription);
-
   await db.collection("users").updateOne(
     {
       auth0Id: user.sub,

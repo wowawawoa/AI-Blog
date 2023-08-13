@@ -31,7 +31,6 @@ export default async function handler(req, res) {
     },
   });
 
-  console.log("user", user);
   // const client = await clientPromise;
   // const db = await client.db("ai-blog");
 
