@@ -12,14 +12,22 @@ export const AppLayout = ({
   availableToken,
   posts: postsFromSSR,
   postId,
+  postCreatedAt,
 }) => {
   const { user } = useUser();
 
-  const { setPostsFromSSR, posts, getPosts } = useContext(PostsContext);
+  const { setPostsFromSSR, posts, getPosts, noMorePosts } =
+    useContext(PostsContext);
 
   useEffect(() => {
     setPostsFromSSR(postsFromSSR);
-  }, [postsFromSSR, setPostsFromSSR]);
+    if (postId) {
+      const exists = postsFromSSR.find((p) => p._id === postId);
+      if (!exists) {
+        getPosts({ getNewerPosts: true, lastPostDate: postCreatedAt });
+      }
+    }
+  }, [postsFromSSR, setPostsFromSSR, postId, getPosts, postCreatedAt]);
 
   return (
     <div className="grid grid-cols-[300px_1fr] h-screen max-h-screen">
@@ -48,14 +56,16 @@ export const AppLayout = ({
               {post.topic}
             </Link>
           ))}
-          <div
-            onClick={() => {
-              getPosts(posts[posts.length - 1].createdAt);
-            }}
-            className="hover:underline text-sm text-slate-400 text-center cursor-pointer mt-4 "
-          >
-            Load more posts
-          </div>
+          {!noMorePosts && (
+            <div
+              onClick={() => {
+                getPosts({ lastPostDate: posts[posts.length - 1].createdAt });
+              }}
+              className="hover:underline text-sm text-slate-400 text-center cursor-pointer mt-4 "
+            >
+              Load more posts
+            </div>
+          )}
         </div>
         <div className="bg-cyan-800 flex items-center gap-2 border-t border-t-black/50 h-20 px-2">
           {!!user ? (
