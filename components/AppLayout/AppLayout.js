@@ -4,9 +4,22 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCoins } from "@fortawesome/free-solid-svg-icons";
 import { Logo } from "../Logo";
+import { useContext, useEffect } from "react";
+import PostsContext from "@/context/postContext";
 
-export const AppLayout = ({ children, availableToken, posts, postId }) => {
+export const AppLayout = ({
+  children,
+  availableToken,
+  posts: postsFromSSR,
+  postId,
+}) => {
   const { user } = useUser();
+
+  const { setPostsFromSSR, posts } = useContext(PostsContext);
+
+  useEffect(() => {
+    setPostsFromSSR(postsFromSSR);
+  }, [postsFromSSR, setPostsFromSSR]);
 
   return (
     <div className="grid grid-cols-[300px_1fr] h-screen max-h-screen">
@@ -27,7 +40,9 @@ export const AppLayout = ({ children, availableToken, posts, postId }) => {
               key={post._id}
               href={`/post/${post._id}`}
               className={`py-1 border block text-ellipsis overflow-hidden whitespace-nowrap my-1 px-2 bg-white/10 cursor-pointer rounded-sm ${
-                postId === post._id ? "bg-white/20 border-white" : "border-white/0"
+                postId === post._id
+                  ? "bg-white/20 border-white"
+                  : "border-white/0"
               }`}
             >
               {post.topic}
