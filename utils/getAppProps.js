@@ -11,7 +11,7 @@ export const getAppProps = async (context) => {
 
   if (!users) {
     return {
-      availableToken: 0,
+      availableToken: 10,
       posts: [],
     };
   }
