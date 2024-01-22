@@ -1,4 +1,4 @@
-# SEO-Friendly Blog Generator Web App
+# SEO-Friendly Blog Generator Web App [AIBoostedBlog](https://aiboostedblog-mw868.ondigitalocean.app/)
 
 Welcome to the SEO-Friendly Blog Generator web app! This app allows users to effortlessly create SEO-friendly blog content by providing a topic and relevant keywords which can simplify the content creation process.
 
