@@ -15,7 +15,8 @@ export default function TokenTopUp() {
   return (
     <div>
       <h1>this is the token top-up page</h1>
-      <button className="btn" onClick={handleClick}>
+      {/* <button className="btn" onClick={handleClick}> */}
+      <button className="btn" disabled>
         Add tokens
       </button>
     </div>

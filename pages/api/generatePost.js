@@ -4,11 +4,24 @@ import clientPromise from "@/lib/mongodb";
 
 export default withApiAuthRequired(async function handler(req, res) {
   const { user } = await getSession(req, res);
+
+  if (!user) {
+    res.status(401);
+    return;
+  }
+
   const client = await clientPromise;
   const db = await client.db("ai-blog");
-  const userProfile = await db.collection("users").findOne({
+  let userProfile = await db.collection("users").findOne({
     auth0Id: user.sub,
   });
+
+  if (!userProfile) {
+    userProfile = await db.collection("users").insertOne({
+      auth0Id: user.sub,
+      availableToken: 10,
+    });
+  }
 
   if (!userProfile?.availableToken) {
     res.status(403);
@@ -27,7 +40,7 @@ export default withApiAuthRequired(async function handler(req, res) {
     return;
   }
 
-  if(topic.length > 80 || keywords.length > 80) {
+  if (topic.length > 80 || keywords.length > 80) {
     res.status(422);
     return;
   }
